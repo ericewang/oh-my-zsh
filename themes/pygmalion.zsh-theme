@@ -15,6 +15,21 @@ prompt_setup_pygmalion(){
   precmd_functions+=(prompt_pygmalion_precmd)
 }
 
+# add kubernetes context to the terminal prompt
+kube_prompt_info()
+{
+  hash kubectl >/dev/null 2>&1 || {
+    return
+  }
+  # Get current context
+  local context=$(kubectl config view | grep current-context | awk '{ print $NF }' | awk -F '.' '{ print $1 }')
+  local namespace=$(kubectl config get-contexts $context | tail -1 | awk '{print $(NF)}')
+  if [ -n "$context" ]; then
+      local display="(k8s: [${context}][${namespace}])"
+      echo "%{$fg[cyan]%}${display}%{$reset_color%}"
+  fi
+}
+
 prompt_pygmalion_precmd(){
   local gitinfo=$(git_prompt_info)
   local gitinfo_nocolor=$(echo "$gitinfo" | perl -pe "s/%\{[^}]+\}//g")
@@ -26,7 +41,8 @@ prompt_pygmalion_precmd(){
   if [[ $prompt_length -gt 40 ]]; then
     nl=$'\n%{\r%}';
   fi
-  PROMPT="$base_prompt$gitinfo$nl$post_prompt"
+#  PROMPT="$base_prompt$gitinfo$nl$post_prompt"
+  PROMPT="$base_prompt$gitinfo$(kube_prompt_info)$nl$post_prompt"
 }
 
 prompt_setup_pygmalion
