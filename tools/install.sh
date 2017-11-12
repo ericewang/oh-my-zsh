@@ -109,6 +109,8 @@ main() {
   echo ''
   echo 'p.p.s. Get stickers and t-shirts at https://shop.planetargon.com.'
   echo ''
+  echo 'p.p.s If you have submodules, run (cd $ZSH && git submodule init && git submodule update).'
+  echo ''
   printf "${NORMAL}"
   env zsh
 }
