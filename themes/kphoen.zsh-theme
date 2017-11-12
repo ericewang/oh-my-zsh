@@ -1,7 +1,24 @@
 # kphoen.zsh-theme
 
+
+# add kubernetes context to the terminal prompt
+kube_prompt_info()
+{
+  hash kubectl >/dev/null 2>&1 || {
+    return
+  }
+  # Get current context
+  local context=$(kubectl config view | grep current-context | awk '{ print $NF }' | awk -F '.' '{ print $1 }')
+  local namespace=$(kubectl config get-contexts $context | tail -1 | awk '{print $(NF)}')
+  if [ -n "$context" ]; then
+      local display="(k8s: [${context}][${namespace}])"
+      echo " %{$fg[cyan]%}${display}%{$reset_color%}"
+  fi
+}
+
 if [[ "$TERM" != "dumb" ]] && [[ "$DISABLE_LS_COLORS" != "true" ]]; then
-    PROMPT='[%{$fg[red]%}%n%{$reset_color%}@%{$fg[magenta]%}%m%{$reset_color%}:%{$fg[blue]%}%~%{$reset_color%}$(git_prompt_info)]
+#    PROMPT='[%{$fg[red]%}%n%{$reset_color%}@%{$fg[magenta]%}%m%{$reset_color%}:%{$fg[blue]%}%~%{$reset_color%}$(git_prompt_info)]
+    PROMPT='[%{$fg[red]%}%n%{$reset_color%}@%{$fg[magenta]%}%m%{$reset_color%}:%{$fg[blue]%}%~%{$reset_color%}$(git_prompt_info)$(kube_prompt_info)]
 %# '
 
     ZSH_THEME_GIT_PROMPT_PREFIX=" on %{$fg[green]%}"
